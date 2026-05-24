@@ -1,0 +1,83 @@
+@import url('https://fonts.googleapis.com/css2?family=Kaisei+Tokumin:wght@400;700&family=Klee+One:wght@400;600&family=Noto+Sans+JP:wght@400;700;900&family=Noto+Serif+JP:wght@400;700;900&family=Outfit:wght@400;600;800;900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-brand-bg: #070a13;
+  --color-brand-card: #0f1424;
+  --color-brand-card-light: #171e35;
+  --color-brand-border: #1e293b;
+  --color-brand-accent: #38bdf8;
+  --color-brand-accent-glow: rgba(56, 189, 248, 0.4);
+}
+
+@layer base {
+  body {
+    background-color: #070a13;
+    color: #f8fafc;
+    font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+    margin: 0;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+}
+
+/* Custom glow utility */
+.glow-cyan {
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.15), inset 0 0 12px rgba(56, 189, 248, 0.05);
+}
+
+.glow-cyan-hover:hover {
+  box-shadow: 0 0 25px rgba(56, 189, 248, 0.35), inset 0 0 12px rgba(56, 189, 248, 0.1);
+  border-color: #38bdf8;
+}
+
+/* Animations */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+.shake {
+  animation: shake 0.3s ease-in-out;
+}
+
+@keyframes correct-pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.correct-pop {
+  animation: correct-pop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Progress bar transition */
+.progress-bar-transition {
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Glassmorphism card */
+.glass-panel {
+  background: rgba(15, 20, 36, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Keyboard badge style */
+.key-badge {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* Japanese Font Families */
+.font-noto-sans { font-family: 'Noto Sans JP', sans-serif; }
+.font-noto-serif { font-family: 'Noto Serif JP', 'Source Han Serif JP', serif; }
+.font-klee-one { font-family: 'Klee One', sans-serif; }
+.font-kaisei { font-family: 'Kaisei Tokumin', serif; }
+.font-yu-gothic { font-family: "Yu Gothic", "YuGothic", sans-serif; }
+.font-yu-mincho { font-family: "Yu Mincho", "YuMincho", serif; }
+.font-hiragino { font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", sans-serif; }
+
