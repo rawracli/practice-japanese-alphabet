@@ -1,4 +1,3 @@
-import { motion, AnimatePresence } from "framer-motion";
 import clsx from "clsx";
 import { getFontClassName } from "../utils/fonts";
 
@@ -19,11 +18,7 @@ export default function KanaCard({ character, totalWrongForCurrent, selectedFont
   const hint = getHint();
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.96 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.96 }}
-      transition={{ duration: 0.2, ease: "easeOut" }}
+    <div
       className="relative w-full max-w-sm mx-auto aspect-square flex flex-col items-center justify-center p-8 rounded-3xl border border-brand-accent/20 bg-brand-card/60 glass-panel shadow-[0_0_50px_rgba(56,189,248,0.05)] select-none"
     >
       {/* Outer absolute glows */}
@@ -51,31 +46,21 @@ export default function KanaCard({ character, totalWrongForCurrent, selectedFont
 
       {/* Help text or dynamic hints */}
       <div className="h-10 mt-6 flex items-center justify-center">
-        <AnimatePresence mode="wait">
-          {hint ? (
-            <motion.div
-              key="hint"
-              initial={{ opacity: 0, y: 5 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -5 }}
-              className="text-xs font-bold text-slate-400 bg-slate-950/60 border border-slate-800/60 px-3 py-1.5 rounded-full flex items-center gap-1.5"
-            >
-              <span className="inline-block w-1.5 h-1.5 rounded-full bg-yellow-400"></span>
-              Hint — {hint}
-            </motion.div>
-          ) : (
-            <motion.div
-              key="tip"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="text-[10px] font-semibold tracking-wider text-slate-500 uppercase"
-            >
-              Type the romaji and press Enter
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {hint ? (
+          <div
+            className="text-xs font-bold text-slate-400 bg-slate-950/60 border border-slate-800/60 px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-all duration-150"
+          >
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-yellow-400"></span>
+            Hint — {hint}
+          </div>
+        ) : (
+          <div
+            className="text-[10px] font-semibold tracking-wider text-slate-500 uppercase"
+          >
+            Type the romaji and press Enter
+          </div>
+        )}
       </div>
-    </motion.div>
+    </div>
   );
 }

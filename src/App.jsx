@@ -23,7 +23,7 @@ function QuizRouteWrapper({ selectedKana, config, selectedFont, setSelectedFont 
   );
 }
 
-function AppShell({ selectedIds, setSelectedIds, selectedFont, setSelectedFont, selectedKana }) {
+function AppShell({ selectedIds, setSelectedIds, selectedFont, setSelectedFont, selectedKana, theme, setTheme }) {
   const location = useLocation();
   const isQuizPage = location.pathname === "/quiz";
 
@@ -35,10 +35,10 @@ function AppShell({ selectedIds, setSelectedIds, selectedFont, setSelectedFont, 
 
       {/* Main Header */}
       <header className="border-b border-slate-900 bg-brand-card/45 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between gap-4">
           <Link
             to="/"
-            className="flex items-center gap-2 group cursor-pointer focus:outline-none"
+            className="flex items-center gap-2 group cursor-pointer focus:outline-none shrink-0"
           >
             <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-accent to-blue-500 flex items-center justify-center font-black text-slate-950 text-sm shadow-[0_0_12px_rgba(56,189,248,0.35)] transition-all duration-300 group-hover:scale-[1.05]">
               か
@@ -48,38 +48,57 @@ function AppShell({ selectedIds, setSelectedIds, selectedFont, setSelectedFont, 
             </span>
           </Link>
 
-          {/* Quick Header Nav Options */}
-          {!isQuizPage && (
-            <nav className="flex items-center gap-4 text-xs font-bold uppercase tracking-wider">
-              <NavLink
-                to="/"
-                className={({ isActive }) =>
-                  clsx(
-                    "transition-colors duration-150 hover:text-slate-100 cursor-pointer",
-                    isActive ? "text-brand-accent font-extrabold" : "text-slate-400"
-                  )
-                }
+          <div className="flex items-center gap-4">
+            {/* Quick Header Nav Options */}
+            {!isQuizPage && (
+              <nav className="flex items-center gap-3 text-[10px] sm:text-xs font-bold uppercase tracking-wider mr-1">
+                <NavLink
+                  to="/"
+                  className={({ isActive }) =>
+                    clsx(
+                      "transition-colors duration-150 hover:text-slate-100 cursor-pointer",
+                      isActive ? "text-brand-accent font-extrabold" : "text-slate-400"
+                    )
+                  }
+                >
+                  Dashboard
+                </NavLink>
+                <NavLink
+                  to="/leaderboard"
+                  className={({ isActive }) =>
+                    clsx(
+                      "transition-colors duration-150 hover:text-slate-100 cursor-pointer",
+                      isActive ? "text-brand-accent font-extrabold" : "text-slate-400"
+                    )
+                  }
+                >
+                  Leaderboards
+                </NavLink>
+              </nav>
+            )}
+
+            {/* Accessible Theme Switcher */}
+            <div className="relative">
+              <select
+                id="global-theme-switcher"
+                value={theme}
+                onChange={(e) => setTheme(e.target.value)}
+                className="px-2 py-1 sm:px-3 sm:py-1.5 rounded-xl border border-slate-800 bg-slate-900 text-[10px] sm:text-xs font-extrabold text-slate-300 outline-none focus:border-brand-accent cursor-pointer transition-all duration-200"
+                title="Switch Theme"
               >
-                Dashboard
-              </NavLink>
-              <NavLink
-                to="/leaderboard"
-                className={({ isActive }) =>
-                  clsx(
-                    "transition-colors duration-150 hover:text-slate-100 cursor-pointer",
-                    isActive ? "text-brand-accent font-extrabold" : "text-slate-400"
-                  )
-                }
-              >
-                Leaderboards
-              </NavLink>
-            </nav>
-          )}
+                <option value="theme-dark">🌌 Dark</option>
+                <option value="theme-light">☀️ Light</option>
+                <option value="theme-midnight">🌃 Midnight</option>
+                <option value="theme-amoled">🕶️ AMOLED</option>
+                <option value="theme-neon">🌈 Neon</option>
+              </select>
+            </div>
+          </div>
         </div>
       </header>
 
       {/* Primary Page Canvas with Route Transitions */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 md:px-6 py-8 md:py-12 z-10">
+      <main className="flex-1 max-w-6xl w-full mx-auto px-4 md:px-6 py-6 md:py-10 z-10">
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
             <Route
@@ -143,6 +162,33 @@ function AppShell({ selectedIds, setSelectedIds, selectedFont, setSelectedFont, 
 }
 
 export default function App() {
+  // Theme state
+  const [theme, setTheme] = useState(() => {
+    try {
+      const saved = localStorage.getItem("kana_practice_theme");
+      return saved || "theme-dark";
+    } catch {
+      return "theme-dark";
+    }
+  });
+
+  // Apply theme class to document body whenever theme state changes
+  useEffect(() => {
+    const bodyClass = document.body.classList;
+    bodyClass.forEach(c => {
+      if (c.startsWith("theme-")) {
+        bodyClass.remove(c);
+      }
+    });
+    bodyClass.add(theme);
+    
+    try {
+      localStorage.setItem("kana_practice_theme", theme);
+    } catch (e) {
+      console.error("Failed to save theme:", e);
+    }
+  }, [theme]);
+
   // State for all explicitly selected kana IDs
   const [selectedIds, setSelectedIds] = useState(() => {
     const saved = loadSelectedIds();
@@ -192,6 +238,8 @@ export default function App() {
         selectedFont={selectedFont}
         setSelectedFont={setSelectedFont}
         selectedKana={selectedKana}
+        theme={theme}
+        setTheme={setTheme}
       />
     </BrowserRouter>
   );

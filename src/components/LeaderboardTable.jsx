@@ -270,8 +270,8 @@ export default function LeaderboardTable({ entries }) {
         </div>
       </div>
 
-      {/* Table Container */}
-      <div className="border border-slate-800 rounded-2xl bg-brand-card/30 overflow-hidden glass-panel">
+      {/* Table Container - Shown on Desktop, Hidden on Mobile */}
+      <div className="hidden md:block border border-slate-800 rounded-2xl bg-brand-card/30 overflow-hidden glass-panel">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -323,16 +323,32 @@ export default function LeaderboardTable({ entries }) {
 
                       {/* Config Mode */}
                       <td className="py-4 px-4 font-bold text-slate-300">
-                        {entry.isCustom ? (
-                          <div className="flex flex-col gap-1.5 py-1">
-                            <div className="flex items-center gap-2">
-                              <span className="font-extrabold text-slate-200">Custom Set</span>
+                        <div className="flex flex-col gap-1.5 py-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-extrabold text-slate-200">
+                              {entry.isReview 
+                                ? `Custom Mistake Review` 
+                                : entry.isCustom 
+                                  ? "Custom Set" 
+                                  : entry.configName}
+                            </span>
+                            {entry.isReview ? (
+                              <span className="px-1.5 py-0.5 rounded-md text-[9px] font-black uppercase bg-rose-500/10 border border-rose-500/30 text-rose-400 shadow-[0_0_8px_rgba(244,63,94,0.1)]">
+                                {entry.selectedCount || entry.totalQuestions} Chars
+                              </span>
+                            ) : entry.isCustom ? (
                               <span className="px-1.5 py-0.5 rounded-md text-[9px] font-black uppercase bg-brand-accent/15 border border-brand-accent/30 text-brand-accent shadow-[0_0_8px_rgba(56,189,248,0.1)]">
                                 {entry.selectedCount || entry.totalQuestions} Chars
                               </span>
-                            </div>
-                            
-                            {/* Script & Group tags */}
+                            ) : (
+                              <span className="px-1.5 py-0.5 rounded-md text-[9px] font-black uppercase bg-slate-800 border border-slate-700 text-slate-400">
+                                Preset
+                              </span>
+                            )}
+                          </div>
+                          
+                          {/* Script & Group tags */}
+                          {(entry.isCustom || entry.isReview) && (
                             <div className="flex flex-wrap gap-1 items-center">
                               {entry.scriptList && entry.scriptList.map(s => (
                                 <span key={s} className="px-1.5 py-0.2 rounded text-[8px] font-bold uppercase bg-slate-900 text-slate-400 border border-slate-800">
@@ -344,29 +360,15 @@ export default function LeaderboardTable({ entries }) {
                                   {g}
                                 </span>
                               ))}
+                              {entry.selectedPreview && entry.selectedPreview !== "Legacy Run" && (
+                                <div className="text-[10px] text-slate-400 font-medium max-w-[200px] sm:max-w-xs truncate" title={entry.selectedPreview}>
+                                  <span className="text-slate-600 font-extrabold uppercase tracking-wider text-[8px] mr-1">Preview:</span>
+                                  <span className="font-mono">{entry.selectedPreview}</span>
+                                </div>
+                              )}
                             </div>
-
-                            {/* Exact Kana Preview */}
-                            {entry.selectedPreview && entry.selectedPreview !== "Legacy Run" && (
-                              <div className="text-[10px] text-slate-400 font-medium max-w-[200px] sm:max-w-xs truncate" title={entry.selectedPreview}>
-                                <span className="text-slate-600 font-extrabold uppercase tracking-wider text-[8px] mr-1">Preview:</span>
-                                <span className="font-mono">{entry.selectedPreview}</span>
-                              </div>
-                            )}
-                          </div>
-                        ) : (
-                          <div className="flex flex-col gap-1 py-1">
-                            <div className="flex items-center gap-2">
-                              <span className="font-extrabold text-slate-200">{entry.configName}</span>
-                              <span className="px-1.5 py-0.5 rounded-md text-[9px] font-black uppercase bg-slate-800 border border-slate-700 text-slate-400">
-                                Preset
-                              </span>
-                            </div>
-                            <div className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">
-                              {entry.selectedCount || entry.totalQuestions} Total Chars
-                            </div>
-                          </div>
-                        )}
+                          )}
+                        </div>
                       </td>
 
                       {/* Grade Badge */}
@@ -405,6 +407,119 @@ export default function LeaderboardTable({ entries }) {
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* Cards Container - Shown on Mobile, Hidden on Desktop */}
+      <div className="block md:hidden space-y-4">
+        {processedEntries.length === 0 ? (
+          <div className="p-12 text-center text-slate-500 font-semibold text-sm border border-slate-800 rounded-2xl bg-brand-card/30 glass-panel">
+            No matching leaderboard scores found. Set a new record!
+          </div>
+        ) : (
+          processedEntries.map((entry, idx) => {
+            let rankColor = "text-slate-400 bg-slate-900 border-slate-800";
+            if (idx === 0 && activeFilterConfig !== "ALL") {
+              rankColor = "text-yellow-400 bg-yellow-500/10 border-yellow-500/30 font-black shadow-[0_0_8px_rgba(234,179,8,0.15)]";
+            } else if (idx === 1 && activeFilterConfig !== "ALL") {
+              rankColor = "text-slate-300 bg-slate-300/10 border-slate-300/30";
+            } else if (idx === 2 && activeFilterConfig !== "ALL") {
+              rankColor = "text-amber-600 bg-amber-600/10 border-amber-600/30";
+            }
+
+            return (
+              <motion.div
+                key={entry.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2, delay: Math.min(idx * 0.03, 0.4) }}
+                className="p-5 rounded-2xl border border-slate-800 bg-brand-card/45 glass-panel space-y-3 relative overflow-hidden"
+              >
+                {/* Header Row: Rank, Badges, Grade */}
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className={clsx(
+                      "inline-flex items-center justify-center w-6 h-6 rounded-md border text-[10px] font-black",
+                      rankColor
+                    )}>
+                      #{idx + 1}
+                    </span>
+                    
+                    {entry.isReview ? (
+                      <span className="px-1.5 py-0.5 rounded text-[8px] font-black uppercase bg-rose-500/10 border border-rose-500/30 text-rose-400 shadow-[0_0_8px_rgba(244,63,94,0.1)]">
+                        Mistake Review
+                      </span>
+                    ) : entry.isCustom ? (
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase bg-brand-accent/15 border border-brand-accent/30 text-brand-accent shadow-[0_0_8px_rgba(56,189,248,0.1)]">
+                        Custom Set
+                      </span>
+                    ) : (
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase bg-slate-800 border border-slate-700 text-slate-400">
+                        Preset
+                      </span>
+                    )}
+                  </div>
+
+                  <span className="px-2 py-0.5 rounded font-black text-[10px] bg-slate-900 border border-slate-850 text-slate-350 uppercase shrink-0">
+                    Grade {entry.grade || "A"}
+                  </span>
+                </div>
+
+                {/* Configuration Name and preview details */}
+                <div className="space-y-1">
+                  <div className="font-extrabold text-sm text-slate-200">
+                    {entry.isReview 
+                      ? `Mistake Review (${entry.selectedCount || entry.totalQuestions} Chars)` 
+                      : entry.configName}
+                  </div>
+                  
+                  {/* Metadata tags */}
+                  {(entry.isCustom || entry.isReview) && (
+                    <div className="flex flex-wrap gap-1 items-center pt-0.5">
+                      {entry.scriptList && entry.scriptList.map(s => (
+                        <span key={s} className="px-1 py-0.1 rounded text-[7px] font-bold uppercase bg-slate-900 text-slate-450 border border-slate-800">
+                          {s}
+                        </span>
+                      ))}
+                      {entry.groupList && entry.groupList.map(g => (
+                        <span key={g} className="px-1 py-0.1 rounded text-[7px] font-bold uppercase bg-slate-900 text-slate-500 border border-slate-800">
+                          {g}
+                        </span>
+                      ))}
+                      {entry.selectedPreview && entry.selectedPreview !== "Legacy Run" && (
+                        <span className="text-[9px] text-slate-500 font-mono truncate max-w-[120px]" title={entry.selectedPreview}>
+                          ({entry.selectedPreview})
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Grid of Key Metrics */}
+                <div className="grid grid-cols-3 gap-2 p-2.5 rounded-xl border border-slate-900 bg-slate-950/30 text-center font-medium">
+                  <div>
+                    <span className="text-[8px] text-slate-500 font-bold uppercase tracking-wider block">Score</span>
+                    <span className="text-xs font-black text-brand-accent">{entry.score}</span>
+                  </div>
+                  <div>
+                    <span className="text-[8px] text-slate-500 font-bold uppercase tracking-wider block">Accuracy</span>
+                    <span className="text-xs font-bold text-slate-300">
+                      {(entry.accuracy * 100).toFixed(0)}%
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[8px] text-slate-500 font-bold uppercase tracking-wider block">Time</span>
+                    <span className="text-xs font-mono text-slate-300">{formatTime(entry.totalTime)}</span>
+                  </div>
+                </div>
+
+                {/* Date stamp */}
+                <div className="text-[8px] text-slate-600 font-bold uppercase tracking-wider text-right">
+                  Achieved: {formatDate(entry.date)}
+                </div>
+              </motion.div>
+            );
+          })
+        )}
       </div>
     </div>
   );

@@ -11,13 +11,16 @@ export default function QuizInput({ value, onChange, status, disabled }) {
     }
   }, [status, disabled]);
 
-  // Keep input focused even if user clicks elsewhere
+  // Keep input focused even if user clicks elsewhere (only for desktop)
   const handleBlur = () => {
     if (!disabled) {
-      // Re-focus on next tick
-      setTimeout(() => {
-        inputRef.current?.focus();
-      }, 10);
+      const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) || (window.innerWidth < 768);
+      if (!isMobile) {
+        // Re-focus on next tick for desktop keyboards
+        setTimeout(() => {
+          inputRef.current?.focus();
+        }, 10);
+      }
     }
   };
 

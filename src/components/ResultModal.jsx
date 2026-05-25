@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import clsx from "clsx";
 import { getGrade } from "../utils/scoring";
+import { kanaData } from "../data/kanaData";
 
 export default function ResultModal({
   stats,
@@ -11,6 +12,13 @@ export default function ResultModal({
   onViewLeaderboard
 }) {
   const [animatedScore, setAnimatedScore] = useState(0);
+
+  const reviewedKanaList = useMemo(() => {
+    if (stats.isReview && stats.selectedIds) {
+      return kanaData.filter(char => stats.selectedIds.includes(char.id));
+    }
+    return [];
+  }, [stats.isReview, stats.selectedIds]);
 
   // Animated score counter effect
   useEffect(() => {
@@ -68,6 +76,12 @@ export default function ResultModal({
         <p className="text-sm text-slate-400 font-semibold tracking-wide uppercase">
           Config: <span className="text-brand-accent">{stats.configName}</span>
         </p>
+
+        {stats.isReview && (
+          <div className="inline-block px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-400 font-extrabold text-xs tracking-wider uppercase mt-2 shadow-[0_0_15px_rgba(244,63,94,0.15)] animate-pulse">
+            ⚠️ Mistake Review Session
+          </div>
+        )}
 
         {stats.isCustom && (
           <div className="mt-4 max-w-md mx-auto p-4 rounded-2xl border border-slate-800 bg-slate-950/40 space-y-2.5 text-left shadow-[0_0_20px_rgba(56,189,248,0.05)]">
@@ -190,6 +204,29 @@ export default function ResultModal({
           <span className="text-xl font-bold text-orange-400">{stats.bestStreak}</span>
         </div>
       </div>
+      {/* Exact Reviewed Kana List */}
+      {stats.isReview && reviewedKanaList.length > 0 && (
+        <div className="p-6 rounded-2xl border border-rose-500/20 bg-rose-500/5 space-y-3">
+          <h3 className="font-extrabold text-slate-200 text-sm tracking-wide uppercase flex items-center gap-2">
+            <span>Reviewed Kana Characters</span>
+            <span className="text-xs font-semibold px-2 py-0.5 rounded bg-rose-950/40 text-rose-450 border border-rose-900/30">
+              {reviewedKanaList.length} Characters
+            </span>
+          </h3>
+          <div className="flex flex-wrap gap-2">
+            {reviewedKanaList.map((item, idx) => (
+              <span
+                key={`${item.id}_${idx}`}
+                className="inline-flex flex-col items-center justify-center w-11 h-11 rounded-xl bg-rose-950/20 border border-rose-900/35 text-slate-200 text-sm font-bold hover:scale-105 transition-all duration-200 cursor-default"
+                title={`${item.romaji} (${item.script})`}
+              >
+                <span>{item.kana}</span>
+                <span className="text-[8px] text-rose-400 font-extrabold uppercase leading-none mt-0.5">{item.romaji}</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Mistake Review Panel */}
       <div className="p-6 rounded-2xl border border-slate-800 bg-slate-950/40">

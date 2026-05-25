@@ -90,6 +90,8 @@ export default function CategorySelector({ config, onChange, totalSelected, sele
   const isDraggingRef = useRef(false);
   const dragModeRef = useRef("select"); // 'select' | 'deselect'
   const draggedIdsRef = useRef(new Set());
+  const touchStartPosRef = useRef({ x: 0, y: 0 });
+  const isTouchScrollingRef = useRef(false);
 
   useEffect(() => {
     const handleGlobalMouseUp = () => {
@@ -135,7 +137,13 @@ export default function CategorySelector({ config, onChange, totalSelected, sele
   };
 
   const handleTouchStart = (e, charId) => {
+    const touch = e.touches[0];
+    if (!touch) return;
+
+    touchStartPosRef.current = { x: touch.clientX, y: touch.clientY };
+    isTouchScrollingRef.current = false;
     isDraggingRef.current = true;
+
     const isSelected = config.includes(charId);
     dragModeRef.current = isSelected ? "deselect" : "select";
 
@@ -146,10 +154,23 @@ export default function CategorySelector({ config, onChange, totalSelected, sele
   };
 
   const handleTouchMove = (e) => {
-    if (!isDraggingRef.current) return;
+    if (!isDraggingRef.current || isTouchScrollingRef.current) return;
 
     const touch = e.touches[0];
     if (!touch) return;
+
+    const dx = touch.clientX - touchStartPosRef.current.x;
+    const dy = touch.clientY - touchStartPosRef.current.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    // If movement is predominantly vertical, assume accordion scrolling and abort paint-select
+    if (!isTouchScrollingRef.current && distance > 10) {
+      if (Math.abs(dy) > Math.abs(dx) * 1.3) {
+        isTouchScrollingRef.current = true;
+        isDraggingRef.current = false;
+        return;
+      }
+    }
 
     const element = document.elementFromPoint(touch.clientX, touch.clientY);
     if (!element) return;
