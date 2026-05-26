@@ -19,17 +19,17 @@ export default function KanaCard({ character, totalWrongForCurrent, selectedFont
 
   return (
     <div
-      className="relative w-full max-w-sm mx-auto aspect-square flex flex-col items-center justify-center p-8 rounded-3xl border border-brand-accent/20 bg-brand-card/60 glass-panel shadow-[0_0_50px_rgba(56,189,248,0.05)] select-none"
+      className="relative w-full max-w-[200px] sm:max-w-sm mx-auto aspect-square flex flex-col items-center justify-center p-4 sm:p-8 rounded-2xl sm:rounded-3xl border border-brand-accent/20 bg-brand-card/60 glass-panel shadow-[0_0_50px_rgba(56,189,248,0.05)] select-none"
     >
       {/* Outer absolute glows */}
       <div className="absolute inset-0 rounded-3xl opacity-20 bg-gradient-to-tr from-brand-accent/10 to-transparent pointer-events-none" />
 
       {/* Script Tag indicator */}
-      <div className="absolute top-4 right-4 flex items-center gap-2">
-        <span className="text-[10px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">
+      <div className="absolute top-2 right-2 sm:top-4 sm:right-4 flex items-center gap-1 sm:gap-2">
+        <span className="text-[8px] sm:text-[10px] font-extrabold uppercase tracking-widest px-1.5 sm:px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">
           {character.script}
         </span>
-        <span className="text-[10px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded bg-slate-800/80 text-brand-accent border border-brand-accent/15">
+        <span className="text-[8px] sm:text-[10px] font-extrabold uppercase tracking-widest px-1.5 sm:px-2 py-0.5 rounded bg-slate-800/80 text-brand-accent border border-brand-accent/15">
           {character.group}
         </span>
       </div>
@@ -37,7 +37,7 @@ export default function KanaCard({ character, totalWrongForCurrent, selectedFont
       {/* Main Japanese character */}
       <div
         className={clsx(
-          "text-8xl md:text-9xl font-black text-slate-100 tracking-normal drop-shadow-[0_0_15px_rgba(248,250,252,0.3)] transition-all duration-300",
+          "text-6xl sm:text-8xl md:text-9xl font-black text-slate-100 tracking-normal drop-shadow-[0_0_15px_rgba(248,250,252,0.3)] transition-all duration-300",
           getFontClassName(selectedFont)
         )}
       >

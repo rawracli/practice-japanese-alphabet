@@ -35,27 +35,69 @@ function groupKanaIntoRows(chars, group) {
       currentIndex += def.count;
     });
   } else if (group === "dakuten") {
-    // Splits the 25 dakuten kana into 5 rows of 5:
-    // G-row, Z-row, D-row, B-row, P-row
-    const rowNames = ["G-Row", "Z-Row", "D-Row", "B-Row", "P-Row"];
-    for (let i = 0; i < 5; i++) {
-      const rowChars = chars.slice(i * 5, (i + 1) * 5);
+    // Group dakuten characters by consonant/family row dynamically
+    const rowDefinitions = [
+      { name: "G-Row", prefix: ["g"] },
+      { name: "Z-Row", prefix: ["z", "j"] },
+      { name: "D-Row", prefix: ["d"] },
+      { name: "B-Row", prefix: ["b"] },
+      { name: "P-Row", prefix: ["p"] },
+      { name: "V-Row", prefix: ["v"] }
+    ];
+    
+    rowDefinitions.forEach(def => {
+      const rowChars = chars.filter(c => def.prefix.some(p => c.romaji.startsWith(p)));
       if (rowChars.length > 0) {
-        rows.push({ name: rowNames[i], chars: rowChars });
+        rows.push({ name: def.name, chars: rowChars });
       }
+    });
+
+    const matchedIds = new Set(rows.flatMap(r => r.chars.map(c => c.id)));
+    const unmatched = chars.filter(c => !matchedIds.has(c.id));
+    if (unmatched.length > 0) {
+      rows.push({ name: "Other-Row", chars: unmatched });
     }
   } else if (group === "combination") {
-    // Splits the 33 combination kana into 11 rows of 3:
-    const rowNames = [
-      "KY-Row", "SH-Row", "CH-Row", "NY-Row",
-      "HY-Row", "MY-Row", "RY-Row", "GY-Row",
-      "J-Row", "BY-Row", "PY-Row"
+    // Group combination characters logically by consonant prefix mapping
+    const rowDefinitions = [
+      { name: "KY-Row", prefix: ["ky"] },
+      { name: "SH-Row", prefix: ["sh", "sy"] },
+      { name: "CH-Row", prefix: ["ch", "ty"] },
+      { name: "NY-Row", prefix: ["ny"] },
+      { name: "HY-Row", prefix: ["hy"] },
+      { name: "MY-Row", prefix: ["my"] },
+      { name: "RY-Row", prefix: ["ry"] },
+      { name: "GY-Row", prefix: ["gy"] },
+      { name: "J-Row", prefix: ["j", "zy"] },
+      { name: "BY-Row", prefix: ["by"] },
+      { name: "PY-Row", prefix: ["py"] },
+      { name: "V-Row", prefix: ["v"] },
+      { name: "F-Row", prefix: ["f"] },
+      { name: "TS-Row", prefix: ["ts"] },
+      { name: "Special", prefix: ["t", "d"] }
     ];
-    for (let i = 0; i < 11; i++) {
-      const rowChars = chars.slice(i * 3, (i + 1) * 3);
+
+    rowDefinitions.forEach(def => {
+      const rowChars = chars.filter(c => {
+        if (def.name === "Special") {
+          return c.romaji.startsWith("ti") || c.romaji.startsWith("tu") || 
+                 c.romaji.startsWith("di") || c.romaji.startsWith("du") ||
+                 c.romaji.startsWith("tyu") || c.romaji.startsWith("dyu");
+        }
+        if (def.name === "CH-Row") {
+          return c.romaji.startsWith("ch") || c.romaji.startsWith("tya") || c.romaji.startsWith("tyu") || c.romaji.startsWith("tyo");
+        }
+        return def.prefix.some(p => c.romaji.startsWith(p));
+      });
       if (rowChars.length > 0) {
-        rows.push({ name: rowNames[i], chars: rowChars });
+        rows.push({ name: def.name, chars: rowChars });
       }
+    });
+
+    const matchedIds = new Set(rows.flatMap(r => r.chars.map(c => c.id)));
+    const unmatched = chars.filter(c => !matchedIds.has(c.id));
+    if (unmatched.length > 0) {
+      rows.push({ name: "Other-Row", chars: unmatched });
     }
   } else {
     // Fallback: group into chunks of 5
@@ -71,6 +113,8 @@ function groupKanaIntoRows(chars, group) {
 }
 
 export default function CategorySelector({ config, onChange, totalSelected, selectedFont, setSelectedFont }) {
+  const isTouchDevice = typeof window !== "undefined" && ("ontouchstart" in window || navigator.maxTouchPoints > 0);
+
   // Tabs: 'hiragana' | 'katakana'
   const [activeTab, setActiveTab] = useState("hiragana");
   
@@ -301,6 +345,10 @@ export default function CategorySelector({ config, onChange, totalSelected, sele
 
   // Preset definitions mapped to character IDs
   const presets = useMemo(() => {
+    const totalHiragana = kanaData.filter(c => c.script === "hiragana").length;
+    const totalKatakana = kanaData.filter(c => c.script === "katakana").length;
+    const totalAll = kanaData.length;
+
     return [
       {
         name: "Hiragana Main",
@@ -309,7 +357,7 @@ export default function CategorySelector({ config, onChange, totalSelected, sele
       },
       {
         name: "All Hiragana",
-        desc: "Master all basic, voiced, and combined Hiragana (104).",
+        desc: `Master all basic, voiced, and combined Hiragana (${totalHiragana}).`,
         ids: kanaData.filter(c => c.script === "hiragana").map(c => c.id)
       },
       {
@@ -319,12 +367,12 @@ export default function CategorySelector({ config, onChange, totalSelected, sele
       },
       {
         name: "All Katakana",
-        desc: "Master all basic, voiced, and combined Katakana (104).",
+        desc: `Master all basic, voiced, and combined Katakana (${totalKatakana}).`,
         ids: kanaData.filter(c => c.script === "katakana").map(c => c.id)
       },
       {
         name: "All Kana Challenge",
-        desc: "The ultimate training: both scripts, all groups (208).",
+        desc: `The ultimate training: both scripts, all groups (${totalAll}).`,
         ids: kanaData.map(c => c.id)
       }
     ];
@@ -444,8 +492,8 @@ export default function CategorySelector({ config, onChange, totalSelected, sele
         {/* Panel Content (Individual Grid) */}
         {isExpanded && (
           <div 
-            className="p-5 border-t border-slate-900 bg-slate-950/20 space-y-4 select-none touch-none"
-            onTouchMove={handleTouchMove}
+            className="p-3.5 sm:p-5 border-t border-slate-900 bg-slate-950/20 space-y-3 sm:space-y-4 select-none touch-none"
+            onTouchMove={!isTouchDevice ? handleTouchMove : undefined}
           >
             {/* Group quick controls */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 border-b border-slate-900/60 pb-3">
@@ -499,9 +547,9 @@ export default function CategorySelector({ config, onChange, totalSelected, sele
                           key={char.id}
                           type="button"
                           data-kana-id={char.id}
-                          onMouseDown={(e) => handleMouseDown(e, char.id)}
-                          onMouseEnter={() => handleMouseEnter(char.id)}
-                          onTouchStart={(e) => handleTouchStart(e, char.id)}
+                          onClick={isTouchDevice ? () => handleToggleChar(char.id) : undefined}
+                          onMouseDown={!isTouchDevice ? (e) => handleMouseDown(e, char.id) : undefined}
+                          onMouseEnter={!isTouchDevice ? () => handleMouseEnter(char.id) : undefined}
                           onKeyDown={(e) => {
                             if (e.key === " " || e.key === "Enter") {
                               e.preventDefault();
@@ -509,7 +557,7 @@ export default function CategorySelector({ config, onChange, totalSelected, sele
                             }
                           }}
                           className={clsx(
-                            "relative py-3.5 rounded-xl border flex flex-col items-center justify-center gap-0.5 select-none cursor-pointer transition-all duration-300 transform active:scale-95 focus:outline-none focus:border-brand-accent",
+                            "relative py-2 sm:py-3.5 rounded-lg sm:rounded-xl border flex flex-col items-center justify-center gap-0.5 select-none cursor-pointer transition-all duration-300 transform active:scale-95 focus:outline-none focus:border-brand-accent",
                             isSelected
                               ? "border-brand-accent bg-brand-accent/5 text-slate-100 shadow-[0_0_12px_rgba(56,189,248,0.15)] scale-[1.03]"
                               : "border-slate-900 hover:border-slate-800 bg-slate-950/40 text-slate-400 hover:bg-slate-900/20"
@@ -517,14 +565,14 @@ export default function CategorySelector({ config, onChange, totalSelected, sele
                         >
                           <span
                             className={clsx(
-                              "text-xl md:text-2xl font-black transition-all duration-300",
+                              "text-base sm:text-xl md:text-2xl font-black transition-all duration-300",
                               isSelected ? "text-brand-accent drop-shadow-[0_0_4px_rgba(56,189,248,0.4)]" : "text-slate-300",
                               getFontClassName(selectedFont)
                             )}
                           >
                             {char.kana}
                           </span>
-                          <span className="text-[9px] font-bold tracking-wide uppercase text-slate-500 pointer-events-none select-none">
+                          <span className="text-[8px] sm:text-[9px] font-bold tracking-wide uppercase text-slate-500 pointer-events-none select-none">
                             {char.romaji}
                           </span>
                           {isSelected && (
@@ -543,14 +591,44 @@ export default function CategorySelector({ config, onChange, totalSelected, sele
     );
   };
 
+  const activePreset = presets.find(p => isPresetActive(p.ids));
+  const activePresetValue = activePreset ? activePreset.name : "";
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-8">
       {/* 1. Quick Presets Grid */}
       <div>
-        <h3 className="text-xs font-extrabold tracking-widest text-slate-500 uppercase mb-4 text-center sm:text-left">
+        <h3 className="text-[10px] sm:text-xs font-extrabold tracking-widest text-slate-500 uppercase mb-2.5 sm:mb-4 text-center sm:text-left">
           Quick-Start Training Presets
         </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        
+        {/* Mobile View Dropdown */}
+        <div className="block sm:hidden">
+          <select
+            value={activePresetValue}
+            onChange={(e) => {
+              const selected = presets.find(p => p.name === e.target.value);
+              if (selected) handleApplyPreset(selected.ids);
+            }}
+            className="w-full px-4 py-3 rounded-2xl border border-slate-850 bg-slate-950 text-sm font-bold text-slate-200 focus:border-brand-accent cursor-pointer outline-none"
+          >
+            <option value="" disabled>-- Select a Preset --</option>
+            {presets.map((preset) => (
+              <option key={preset.name} value={preset.name}>
+                {preset.name}
+              </option>
+            ))}
+            {!activePresetValue && <option value="" disabled>Custom Configuration</option>}
+          </select>
+          {activePreset && (
+            <p className="text-[11px] text-slate-400 mt-2 px-1 font-semibold leading-normal">
+              {activePreset.desc}
+            </p>
+          )}
+        </div>
+
+        {/* Desktop View Grid */}
+        <div className="hidden sm:grid grid-cols-2 lg:grid-cols-5 gap-4">
           {presets.map((preset) => {
             const isActive = isPresetActive(preset.ids);
             return (
@@ -576,9 +654,9 @@ export default function CategorySelector({ config, onChange, totalSelected, sele
           })}
         </div>
       </div>
-
+ 
       {/* 2. Hierarchical selection segment */}
-      <div className="p-6 md:p-8 rounded-3xl border border-slate-800 bg-brand-card/20 space-y-6">
+      <div className="sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl sm:border border-slate-800 bg-brand-card/20 space-y-4 sm:space-y-6">
         <div className="flex flex-col md:flex-row items-center justify-between border-b border-slate-800 pb-4 gap-4">
           <div>
             <h3 className="font-black text-slate-200 text-lg flex items-center gap-2 justify-center md:justify-start">
@@ -608,7 +686,7 @@ export default function CategorySelector({ config, onChange, totalSelected, sele
                 )}
               >
                 <span>あ</span>
-                Hiragana
+                <p className="hidden sm:block">Hiragana</p>
                 <span
                   className={clsx(
                     "text-[9px] px-1.5 py-0.5 rounded-full font-bold",
@@ -629,7 +707,7 @@ export default function CategorySelector({ config, onChange, totalSelected, sele
                 )}
               >
                 <span>ア</span>
-                Katakana
+                <p className="hidden sm:block">Katakana</p>
                 <span
                   className={clsx(
                     "text-[9px] px-1.5 py-0.5 rounded-full font-bold",
@@ -724,7 +802,7 @@ export default function CategorySelector({ config, onChange, totalSelected, sele
           </div>
           <div className="text-center sm:text-right">
             <span className="text-[10px] text-slate-500 font-extrabold tracking-widest uppercase block">Practicing Characters</span>
-            <span className="text-2xl font-black text-brand-accent font-mono">{totalSelected} / 208</span>
+            <span className="text-2xl font-black text-brand-accent font-mono">{totalSelected} / {kanaData.length}</span>
           </div>
         </div>
 

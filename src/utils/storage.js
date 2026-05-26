@@ -145,35 +145,43 @@ export function getConfigName(config) {
   const dakutenCount = dakutenSelected.length;
   const combinationCount = combinationSelected.length;
 
-  const totalHiragana = 104;
-  const totalKatakana = 104;
+  const totalHiragana = kanaData.filter(char => char.script === "hiragana").length;
+  const totalKatakana = kanaData.filter(char => char.script === "katakana").length;
+  const totalAll = kanaData.length;
+
+  const hMainCount = kanaData.filter(char => char.script === "hiragana" && char.group === "main").length;
+  const kMainCount = kanaData.filter(char => char.script === "katakana" && char.group === "main").length;
+  const hDakutenCount = kanaData.filter(char => char.script === "hiragana" && char.group === "dakuten").length;
+  const kDakutenCount = kanaData.filter(char => char.script === "katakana" && char.group === "dakuten").length;
+  const hCombinationCount = kanaData.filter(char => char.script === "hiragana" && char.group === "combination").length;
+  const kCombinationCount = kanaData.filter(char => char.script === "katakana" && char.group === "combination").length;
 
   // 1. Check exact presets
-  if (totalCount === 208) return "All Kana";
+  if (totalCount === totalAll) return "All Kana";
   
   if (totalHCount === totalHiragana && totalKCount === 0) return "All Hiragana";
   if (totalKCount === totalKatakana && totalHCount === 0) return "All Katakana";
 
-  if (totalHCount === 46 && totalKCount === 0 && mainCount === 46 && dakutenCount === 0 && combinationCount === 0) {
+  if (totalHCount === hMainCount && totalKCount === 0 && mainCount === hMainCount && dakutenCount === 0 && combinationCount === 0) {
     const isAllMainHiragana = hSelected.every(char => char.group === "main");
     if (isAllMainHiragana) return "Hiragana Main";
   }
-  if (totalKCount === 46 && totalHCount === 0 && mainCount === 46 && dakutenCount === 0 && combinationCount === 0) {
+  if (totalKCount === kMainCount && totalHCount === 0 && mainCount === kMainCount && dakutenCount === 0 && combinationCount === 0) {
     const isAllMainKatakana = kSelected.every(char => char.group === "main");
     if (isAllMainKatakana) return "Katakana Main";
   }
 
-  if (totalHCount === 25 && totalKCount === 0 && dakutenCount === 25 && mainCount === 0 && combinationCount === 0) {
+  if (totalHCount === hDakutenCount && totalKCount === 0 && dakutenCount === hDakutenCount && mainCount === 0 && combinationCount === 0) {
     return "Hiragana Dakuten";
   }
-  if (totalKCount === 25 && totalHCount === 0 && dakutenCount === 25 && mainCount === 0 && combinationCount === 0) {
+  if (totalKCount === kDakutenCount && totalHCount === 0 && dakutenCount === kDakutenCount && mainCount === 0 && combinationCount === 0) {
     return "Katakana Dakuten";
   }
 
-  if (totalHCount === 33 && totalKCount === 0 && combinationCount === 33 && mainCount === 0 && dakutenCount === 0) {
+  if (totalHCount === hCombinationCount && totalKCount === 0 && combinationCount === hCombinationCount && mainCount === 0 && dakutenCount === 0) {
     return "Hiragana Combination";
   }
-  if (totalKCount === 33 && totalHCount === 0 && combinationCount === 33 && mainCount === 0 && dakutenCount === 0) {
+  if (totalKCount === kCombinationCount && totalHCount === 0 && combinationCount === kCombinationCount && mainCount === 0 && dakutenCount === 0) {
     return "Katakana Combination";
   }
 

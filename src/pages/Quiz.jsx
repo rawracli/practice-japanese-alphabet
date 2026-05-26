@@ -710,7 +710,7 @@ export default function Quiz({ selectedKana, config, selectedFont, setSelectedFo
   const completionFraction = currentIndex / kanaList.length;
 
   return (
-    <div className="space-y-6 py-4 max-w-4xl mx-auto relative">
+    <div className="space-y-3 sm:space-y-6 py-2 sm:py-4 max-w-4xl mx-auto relative px-2 sm:px-0">
       {/* Session Header */}
       <QuizHeader
         modeName={isMistakesOnlyRun ? `Mistakes Review` : "Practice Session"}
@@ -731,7 +731,7 @@ export default function Quiz({ selectedKana, config, selectedFont, setSelectedFo
       <ProgressBar progress={completionFraction} />
 
       {/* Main Flashcard Card display */}
-      <div className="py-6">
+      <div className="py-3 sm:py-6">
         <AnimatePresence mode="wait">
           <KanaCard
             key={activeKana.id}
@@ -743,7 +743,7 @@ export default function Quiz({ selectedKana, config, selectedFont, setSelectedFo
       </div>
 
       {/* Typing Answer Input Box */}
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <QuizInput
           value={inputValue}
           onChange={setInputValue}
@@ -753,13 +753,13 @@ export default function Quiz({ selectedKana, config, selectedFont, setSelectedFo
         />
 
         {/* Flow button controls */}
-        <div className="flex flex-wrap items-center justify-center gap-4">
+        <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => setShowShortcutsHelp(true)}
             type="button"
-            className="px-5 py-2.5 rounded-xl border border-slate-800 bg-slate-900/60 hover:bg-slate-900 text-slate-400 hover:text-slate-200 text-xs font-bold transition-all duration-200 cursor-pointer flex items-center gap-1.5"
+            className="hidden sm:flex px-5 py-2.5 rounded-xl border border-slate-800 bg-slate-900/60 hover:bg-slate-900 text-slate-400 hover:text-slate-200 text-xs font-bold transition-all duration-200 cursor-pointer items-center gap-1.5"
           >
             ⌨️ Shortcuts
           </motion.button>
@@ -769,7 +769,7 @@ export default function Quiz({ selectedKana, config, selectedFont, setSelectedFo
             whileTap={{ scale: 0.98 }}
             onClick={() => finishSession(false)}
             type="button"
-            className="px-5 py-2.5 rounded-xl border border-slate-800 bg-slate-900/60 hover:bg-slate-900 text-slate-400 hover:text-slate-200 text-xs font-bold transition-all duration-200 cursor-pointer"
+            className="hidden sm:flex px-5 py-2.5 rounded-xl border border-slate-800 bg-slate-900/60 hover:bg-slate-900 text-slate-400 hover:text-slate-200 text-xs font-bold transition-all duration-200 cursor-pointer"
           >
             Finish Quiz
           </motion.button>
@@ -779,7 +779,7 @@ export default function Quiz({ selectedKana, config, selectedFont, setSelectedFo
             whileTap={{ scale: 0.98 }}
             onClick={handleRestart}
             type="button"
-            className="px-5 py-2.5 rounded-xl border border-slate-800 bg-slate-900/60 hover:bg-slate-900 text-slate-400 hover:text-slate-200 text-xs font-bold transition-all duration-200 cursor-pointer"
+            className="hidden sm:flex px-5 py-2.5 rounded-xl border border-slate-800 bg-slate-900/60 hover:bg-slate-900 text-slate-400 hover:text-slate-200 text-xs font-bold transition-all duration-200 cursor-pointer"
           >
             Restart
           </motion.button>
@@ -789,7 +789,7 @@ export default function Quiz({ selectedKana, config, selectedFont, setSelectedFo
             whileTap={{ scale: 0.98 }}
             onClick={handleSkip}
             type="button"
-            className="px-5 py-2.5 rounded-xl border border-slate-800 bg-slate-900/60 hover:bg-slate-900 text-brand-accent text-xs font-bold transition-all duration-200 flex items-center gap-1 cursor-pointer"
+            className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-slate-800 bg-slate-900/60 hover:bg-slate-900 text-brand-accent text-xs font-bold transition-all duration-200 flex items-center justify-center gap-1 cursor-pointer"
           >
             Skip
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>

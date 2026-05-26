@@ -39,6 +39,7 @@ export default function Home({
   const [heatmapScript, setHeatmapScript] = useState("ALL"); // 'ALL' | 'hiragana' | 'katakana'
   const [heatmapGroup, setHeatmapGroup] = useState("ALL"); // 'ALL' | 'main' | 'dakuten' | 'combination'
   const [selectedHeatmapChar, setSelectedHeatmapChar] = useState(null); // Click to view details on mobile
+  const [isMobileHeatmapOpen, setIsMobileHeatmapOpen] = useState(false);
 
   // Migrate schema and check for interrupted session on mount
   useEffect(() => {
@@ -291,6 +292,49 @@ export default function Home({
         </button>
       </div>
 
+      {/* Manual Configuration Area (Moved below Quick Start) */}
+      <div className="p-3.5 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-800 bg-brand-card/30 space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row items-center justify-between border-b border-slate-800 pb-3 sm:pb-4 gap-4">
+          <div className="text-center sm:text-left">
+            <h2 className="text-lg sm:text-xl font-black text-slate-200">Custom Training Session</h2>
+            <p className="text-[11px] sm:text-xs text-slate-400">Configure your specific combination of scripts and groups below.</p>
+          </div>
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <button
+              onClick={() => navigate("/leaderboard")}
+              type="button"
+              className="w-full sm:w-auto px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl border border-slate-800 hover:border-slate-700 bg-slate-900 text-[11px] sm:text-xs font-bold text-slate-300 transition-all duration-200 flex items-center justify-center gap-1.5 cursor-pointer"
+            >
+              <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+              Leaderboard
+            </button>
+            
+            <button
+              onClick={handleStartSession}
+              type="button"
+              disabled={totalSelected === 0}
+              className="w-full sm:w-auto px-5 sm:px-6 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-brand-accent to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-slate-950 font-black text-[11px] sm:text-xs transition-all duration-300 shadow-[0_0_20px_rgba(56,189,248,0.2)] hover:shadow-[0_0_25px_rgba(56,189,248,0.35)] disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center gap-1.5 cursor-pointer"
+            >
+              Start <span className="hidden sm:block">Session</span>
+              <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-950" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <CategorySelector
+          config={config}
+          onChange={setConfig}
+          totalSelected={totalSelected}
+          selectedFont={selectedFont}
+          setSelectedFont={setSelectedFont}
+        />
+      </div>
+
       {/* Spaced Repetition Mastery Analytics Summary */}
       {srsAnalysis.totalPracticedCount > 0 && (
         <div className="p-6 rounded-3xl border border-slate-800 bg-brand-card/15 space-y-6">
@@ -415,7 +459,12 @@ export default function Home({
                 return (
                   <button
                     key={char.id}
-                    onClick={() => setSelectedHeatmapChar(char)}
+                    onClick={() => {
+                      setSelectedHeatmapChar(char);
+                      if (window.innerWidth < 1024) {
+                        setIsMobileHeatmapOpen(true);
+                      }
+                    }}
                     type="button"
                     className={clsx(
                       "aspect-square rounded-xl border text-base font-bold flex flex-col items-center justify-center transition-all duration-200 transform active:scale-95 cursor-pointer relative",
@@ -447,8 +496,8 @@ export default function Home({
             </div>
           </div>
 
-          {/* Metrics Drawer Card */}
-          <div className="p-5 rounded-2xl border border-slate-800 bg-slate-950/40 shadow-inner flex flex-col justify-between">
+          {/* Metrics Drawer Card (Desktop only, hidden on mobile) */}
+          <div className="hidden lg:flex p-5 rounded-2xl border border-slate-800 bg-slate-950/40 shadow-inner flex-col justify-between">
             {selectedHeatmapChar ? (
               <div className="space-y-4">
                 <div className="text-center pb-3 border-b border-slate-900">
@@ -558,48 +607,7 @@ export default function Home({
         </div>
       </div>
 
-      {/* Manual Configuration Area */}
-      <div className="p-6 md:p-8 rounded-3xl border border-slate-800 bg-brand-card/30 space-y-6">
-        <div className="flex flex-col sm:flex-row items-center justify-between border-b border-slate-800 pb-4 gap-4">
-          <div className="text-center sm:text-left">
-            <h2 className="text-xl font-black text-slate-200">Custom Training Session</h2>
-            <p className="text-xs text-slate-400">Configure your specific combination of scripts and groups below.</p>
-          </div>
-          <div className="flex items-center gap-3 w-full sm:w-auto">
-            <button
-              onClick={() => navigate("/leaderboard")}
-              type="button"
-              className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-slate-800 hover:border-slate-700 bg-slate-900 text-xs font-bold text-slate-300 transition-all duration-200 flex items-center justify-center gap-1.5 cursor-pointer"
-            >
-              <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
-              View Leaderboard
-            </button>
-            
-            <button
-              onClick={handleStartSession}
-              type="button"
-              disabled={totalSelected === 0}
-              className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-brand-accent to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-slate-950 font-black text-xs transition-all duration-300 shadow-[0_0_20px_rgba(56,189,248,0.2)] hover:shadow-[0_0_25px_rgba(56,189,248,0.35)] disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center gap-1.5 cursor-pointer"
-            >
-              Start Session
-              <svg className="w-4 h-4 text-slate-950" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </button>
-          </div>
-        </div>
 
-        <CategorySelector
-          config={config}
-          onChange={setConfig}
-          totalSelected={totalSelected}
-          selectedFont={selectedFont}
-          setSelectedFont={setSelectedFont}
-        />
-      </div>
 
       {/* Visual Settings Resets Dashboard */}
       <div className="p-6 md:p-8 rounded-3xl border border-slate-800 bg-brand-card/25 space-y-6">
@@ -702,6 +710,88 @@ export default function Home({
           </div>
         </div>
       </div>
+
+      {/* Mobile Heatmap Details Modal */}
+      <AnimatePresence>
+        {isMobileHeatmapOpen && selectedHeatmapChar && selectedCharRecord && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="w-full max-w-sm p-6 rounded-3xl border border-brand-accent/20 bg-brand-card/95 shadow-[0_0_50px_rgba(56,189,248,0.15)] space-y-4"
+            >
+              <div className="text-center pb-3 border-b border-slate-900">
+                <div className={`text-6xl font-black text-slate-200 my-2 ${getFontClassName(selectedFont)}`}>
+                  {selectedHeatmapChar.kana}
+                </div>
+                <span className="text-xs font-black uppercase text-brand-accent tracking-widest block font-mono">
+                  Romaji: {selectedHeatmapChar.romaji}
+                </span>
+                <div className="flex items-center justify-center gap-1.5 mt-2">
+                  <span className="px-2 py-0.5 rounded text-[8px] font-black uppercase bg-slate-900 text-slate-400 border border-slate-800">
+                    {selectedHeatmapChar.script}
+                  </span>
+                  <span className="px-2 py-0.5 rounded text-[8px] font-black uppercase bg-slate-900 text-slate-500">
+                    {selectedHeatmapChar.group}
+                  </span>
+                </div>
+              </div>
+
+              <div className="space-y-2 text-xs">
+                <div className="flex justify-between items-center py-1 border-b border-slate-900/40">
+                  <span className="text-slate-500 font-bold uppercase tracking-wide text-[9px]">Total Reviews</span>
+                  <span className="text-slate-200 font-bold">{selectedCharRecord.totalAttempts}</span>
+                </div>
+                <div className="flex justify-between items-center py-1 border-b border-slate-900/40">
+                  <span className="text-slate-500 font-bold uppercase tracking-wide text-[9px]">Correct reviews</span>
+                  <span className="text-emerald-400 font-bold">{selectedCharRecord.correctAnswers}</span>
+                </div>
+                <div className="flex justify-between items-center py-1 border-b border-slate-900/40">
+                  <span className="text-slate-500 font-bold uppercase tracking-wide text-[9px]">Mistakes</span>
+                  <span className="text-rose-400 font-bold">{selectedCharRecord.wrongAnswers}</span>
+                </div>
+                <div className="flex justify-between items-center py-1 border-b border-slate-900/40">
+                  <span className="text-slate-500 font-bold uppercase tracking-wide text-[9px]">Longest Streak</span>
+                  <span className="text-amber-400 font-bold">{selectedCharRecord.bestStreak} 🔥</span>
+                </div>
+                <div className="flex justify-between items-center py-1 border-b border-slate-900/40">
+                  <span className="text-slate-500 font-bold uppercase tracking-wide text-[9px]">Average Pace</span>
+                  <span className="text-slate-200 font-mono font-bold">
+                    {selectedCharRecord.totalAttempts > 0 
+                      ? `${selectedCharRecord.avgResponseTime.toFixed(1)}s` 
+                      : "N/A"}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center py-1 border-b border-slate-900/40">
+                  <span className="text-slate-500 font-bold uppercase tracking-wide text-[9px]">SRS Weight</span>
+                  <span className="text-rose-400 font-mono font-bold">
+                    {selectedCharRecord.totalAttempts > 0 
+                      ? (selectedCharRecord.difficultyWeight || 1.0).toFixed(2) 
+                      : "1.00"}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center py-1 text-[9px]">
+                  <span className="text-slate-500 font-bold uppercase tracking-wide">Last Practiced</span>
+                  <span className="text-slate-400 font-semibold truncate max-w-[120px]">
+                    {selectedCharRecord.lastPracticed 
+                      ? new Date(selectedCharRecord.lastPracticed).toLocaleDateString() 
+                      : "Never"}
+                  </span>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setIsMobileHeatmapOpen(false)}
+                type="button"
+                className="w-full py-2.5 rounded-xl bg-brand-accent text-slate-950 font-black text-xs transition-all duration-300 shadow-[0_0_15px_rgba(56,189,248,0.2)] cursor-pointer"
+              >
+                Close Details
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

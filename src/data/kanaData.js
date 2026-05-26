@@ -229,6 +229,7 @@ export const kanaData = [
   { id: "k_dakuten_pu", kana: "プ", romaji: "pu", script: "katakana", group: "dakuten" },
   { id: "k_dakuten_pe", kana: "ペ", romaji: "pe", script: "katakana", group: "dakuten" },
   { id: "k_dakuten_po", kana: "ポ", romaji: "po", script: "katakana", group: "dakuten" },
+  { id: "k_dakuten_vu", kana: "ヴ", romaji: "vu", script: "katakana", group: "dakuten" },
 
   // ==========================================
   // KATAKANA - COMBINATION KANA (33)
@@ -275,5 +276,40 @@ export const kanaData = [
   
   { id: "k_combination_pya", kana: "ピャ", romaji: "pya", script: "katakana", group: "combination" },
   { id: "k_combination_pyu", kana: "ピュ", romaji: "pyu", script: "katakana", group: "combination" },
-  { id: "k_combination_pyo", kana: "ピョ", romaji: "pyo", script: "katakana", group: "combination" }
+  { id: "k_combination_pyo", kana: "ピョ", romaji: "pyo", script: "katakana", group: "combination" },
+
+  // ヴ-row
+  { id: "k_combination_va", kana: "ヴァ", romaji: "va", script: "katakana", group: "combination" },
+  { id: "k_combination_vi", kana: "ヴィ", romaji: "vi", script: "katakana", group: "combination" },
+  { id: "k_combination_ve", kana: "ヴェ", romaji: "ve", script: "katakana", group: "combination" },
+  { id: "k_combination_vo", kana: "ヴォ", romaji: "vo", script: "katakana", group: "combination" },
+
+  // F-row
+  { id: "k_combination_fa", kana: "ファ", romaji: "fa", script: "katakana", group: "combination" },
+  { id: "k_combination_fi", kana: "フィ", romaji: "fi", script: "katakana", group: "combination" },
+  { id: "k_combination_fe", kana: "フェ", romaji: "fe", script: "katakana", group: "combination" },
+  { id: "k_combination_fo", kana: "フォ", romaji: "fo", script: "katakana", group: "combination" },
+
+  // TS-row
+  { id: "k_combination_tsa", kana: "ツァ", romaji: "tsa", script: "katakana", group: "combination" },
+  { id: "k_combination_tsi", kana: "ツィ", romaji: "tsi", script: "katakana", group: "combination" },
+  { id: "k_combination_tse", kana: "ツェ", romaji: "tse", script: "katakana", group: "combination" },
+  { id: "k_combination_tso", kana: "ツォ", romaji: "tso", script: "katakana", group: "combination" },
+
+  // SH-row
+  { id: "k_combination_she", kana: "シェ", romaji: "she", alternatives: ["sye"], script: "katakana", group: "combination" },
+
+  // J-row
+  { id: "k_combination_je", kana: "ジェ", romaji: "je", alternatives: ["zye", "jye"], script: "katakana", group: "combination" },
+
+  // CH-row
+  { id: "k_combination_che", kana: "チェ", romaji: "che", alternatives: ["tye"], script: "katakana", group: "combination" },
+
+  // Irregular / Special Combination Rows
+  { id: "k_combination_ti", kana: "ティ", romaji: "ti", script: "katakana", group: "combination" },
+  { id: "k_combination_tu", kana: "トゥ", romaji: "tu", script: "katakana", group: "combination" },
+  { id: "k_combination_di", kana: "ディ", romaji: "di", script: "katakana", group: "combination" },
+  { id: "k_combination_du", kana: "ドゥ", romaji: "du", script: "katakana", group: "combination" },
+  { id: "k_combination_tyu", kana: "テュ", romaji: "tyu", script: "katakana", group: "combination" },
+  { id: "k_combination_dyu", kana: "デュ", romaji: "dyu", script: "katakana", group: "combination" }
 ];
